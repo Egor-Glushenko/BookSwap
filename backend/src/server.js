@@ -1,11 +1,13 @@
 import cors from 'cors';
 import express from 'express';
+import { config } from './config/env.js';
+import authRoutes from './routes/auth.routes.js';
 
 const app = express();
-const port = process.env.PORT || 4000;
 
-app.use(cors());
+app.use(cors({ origin: config.clientOrigin }));
 app.use(express.json());
+app.use('/api/auth', authRoutes);
 
 const listings = [
   { id: 1, type: 'Продажа', title: 'Вино из одуванчиков', author: 'Рэй Брэдбери', price: 350, city: 'Москва', rating: 4.9 },
@@ -30,12 +32,6 @@ app.get('/api/books/best', (req, res) => {
   const period = req.query.period || 'all';
   const data = listings.filter((book) => !genre || book.genre === genre).map((book) => ({ ...book, period, reviews: book.rating === 4.9 ? 1248 : 984 }));
   res.json({ data, total: data.length });
-});
-app.post('/api/auth/login', (req, res) => {
-  const email = String(req.body.email || '').trim();
-  const password = String(req.body.password || '');
-  if (!email || !password) return res.status(400).json({ error: 'Email и пароль обязательны' });
-  res.json({ user: { id: 1, email, name: req.body.name || 'Александра', city: 'Москва', role: 'user', rating: 4.9, deals: 24 }, token: 'demo-session-token' });
 });
 app.post('/api/books/:id/rating', (req, res) => {
   const value = Math.min(5, Math.max(1, Number(req.body.value)));
@@ -62,4 +58,4 @@ app.post('/api/chats/:id/messages', (req, res) => {
   res.status(201).json({ data: { id: Date.now(), chatId: Number(req.params.id), text, status: 'sent', createdAt: new Date().toISOString() } });
 });
 
-app.listen(port, () => console.log(`BookSwap API listening on http://localhost:${port}`));
+app.listen(config.port, () => console.log(`BookSwap API listening on http://localhost:${config.port}`));
