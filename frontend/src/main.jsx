@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import './styles.css';
 import './shared/auth.css';
+import './shared/responsive.css';
 import { authApi } from './shared/api';
 
 const books = [

@@ -5,7 +5,13 @@ import authRoutes from './routes/auth.routes.js';
 
 const app = express();
 
-app.use(cors({ origin: config.clientOrigin }));
+app.use(cors({
+  origin(origin, callback) {
+    // Requests made without a browser Origin header (health checks, curl) are safe.
+    if (!origin || config.allowedOrigins.includes(origin.replace(/\/$/, ''))) return callback(null, true);
+    return callback(new Error('Origin is not allowed by CORS'));
+  }
+}));
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 
