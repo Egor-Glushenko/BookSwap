@@ -7,10 +7,10 @@ The repository is a workspace with two independently deployable applications:
 
 ## Authentication
 
-The current MVP supports only email/password registration and sign-in. Passwords are salted and hashed with Node.js `scrypt`; sessions are opaque tokens. No confirmation or one-time codes are used.
+The current MVP supports only login/password sign-in. Regular users register and sign in with email/password. Admin and moderator sessions are created only from the special configured credential pairs; ordinary database credentials are refused for staff roles. Passwords are salted and hashed with Node.js `scrypt`; authenticated API calls use signed JWT bearer tokens. No confirmation or one-time codes are used.
 
 Endpoints: `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/logout`.
 
 ## Data evolution
 
-Users are stored in PostgreSQL through `src/repositories/user.repository.js`; the database schema is versioned in `backend/migrations`. Session tokens remain in the in-memory MVP session store. Before multi-instance production deployment, move sessions to Redis; routes and the auth service can remain unchanged.
+Users, listings, ratings, favorites, chats, moderation records, categories, and reviews are stored in PostgreSQL through repository modules; the database schema is versioned in `backend/migrations`.

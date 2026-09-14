@@ -18,8 +18,8 @@ For local startup, the commands above load the root `.env` file explicitly. On R
 
 For deployment, set `CLIENT_ORIGINS` on Render to the exact Vercel URL (or a comma-separated list of production and preview URLs). It must match the browser address exactly, without a trailing slash.
 
-The current UI uses local demo listings so every required flow can be previewed without a database. Users are stored in PostgreSQL; the Express API already exposes MVP routes for listings, ratings, favorites, chats, messages, and best books. Redis and Socket.IO can be connected behind these routes next.
+The UI reads marketplace data from PostgreSQL through the Express API. Guests can browse listings, cards, ratings, search, and filters; JWT-authenticated users can create listings, chat, rate books, save favorites, use the profile area, and leave seller reviews. Moderator and administrator endpoints cover reports, listing removal, user blocking, category management, and moderator role management.
 
 ## Authentication
 
-The MVP uses email and password only — there are no verification codes or social providers. Registration and sign-in are connected to `POST /api/auth/register` and `POST /api/auth/login`; passwords are salted and hashed with `scrypt`. See [ARCHITECTURE.md](./ARCHITECTURE.md) for module boundaries and the future PostgreSQL/Redis migration seam.
+The MVP uses login/password only — there are no verification codes or social providers. Regular users sign in with their email and password. Admin and moderator access is issued only when `POST /api/auth/login` receives the exact special login/password pairs from `ADMIN_LOGIN`/`ADMIN_PASSWORD` or `MODERATOR_LOGIN`/`MODERATOR_PASSWORD`; ordinary database passwords cannot open staff roles. Passwords are salted and hashed with `scrypt`, and authenticated requests use a `Bearer` JWT. See [ARCHITECTURE.md](./ARCHITECTURE.md) for module boundaries.
