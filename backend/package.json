@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch src/server.js",
+    "prestart": "node src/scripts/migrate.js",
     "start": "node src/server.js",
     "migrate": "node src/scripts/migrate.js"
   },

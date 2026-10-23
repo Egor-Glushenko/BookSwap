@@ -16,6 +16,8 @@ node --env-file=.env backend/src/server.js
 
 For local startup, the commands above load the root `.env` file explicitly. On Render, environment variables are supplied by Render, so the Start Command must not include `--env-file`.
 
+On Render, use `npm start` as the Start Command (with the repository root or `backend/` as the service root). The backend's `prestart` script applies the idempotent SQL migrations before starting the API, creating the required tables in the configured PostgreSQL database.
+
 For deployment, set `CLIENT_ORIGINS` on Render to the exact Vercel URL (or a comma-separated list of production and preview URLs). It must match the browser address exactly, without a trailing slash.
 
 The UI reads marketplace data from PostgreSQL through the Express API. Guests can browse listings, cards, ratings, search, and filters; JWT-authenticated users can create listings, chat, rate books, save favorites, use the profile area, and leave seller reviews. Moderator and administrator endpoints cover reports, listing removal, user blocking, category management, and moderator role management.
