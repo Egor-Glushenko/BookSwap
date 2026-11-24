@@ -1,35 +1,26 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware.js';
+import { asyncHandler } from '../lib/errors.js';
 import { getBestBooks } from '../services/listing.service.js';
-import { getUserRating, rateBook } from '../services/rating.service.js';
+import { getBookRatings, getUserRating, rateBook } from '../services/rating.service.js';
 
 const router = Router();
 
-router.get('/best', async (req, res) => {
-  try {
-    const data = await getBestBooks({ genre: req.query.genre, period: req.query.period || 'all' });
-    res.json({ data, total: data.length });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+router.get('/best', asyncHandler(async (request, response) => {
+  const data = await getBestBooks({ genre: request.query.genre, period: request.query.period || 'all' });
+  response.json({ data, total: data.length });
+}));
 
-router.post('/:id/rating', requireAuth, async (req, res) => {
-  try {
-    const result = await rateBook(req.user.id, req.params.id, req.body);
-    res.json(result);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+router.get('/:id(\\d+)/ratings', asyncHandler(async (request, response) => {
+  response.json(await getBookRatings(request.params.id));
+}));
 
-router.get('/:id/rating', requireAuth, async (req, res) => {
-  try {
-    const value = await getUserRating(req.user.id, req.params.id);
-    res.json({ value });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+router.post('/:id(\\d+)/rating', requireAuth, asyncHandler(async (request, response) => {
+  response.json(await rateBook(request.user.id, request.params.id, request.body || {}));
+}));
+
+router.get('/:id(\\d+)/rating', requireAuth, asyncHandler(async (request, response) => {
+  response.json({ value: await getUserRating(request.user.id, request.params.id) });
+}));
 
 export default router;

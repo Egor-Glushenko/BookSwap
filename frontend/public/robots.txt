@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /profile
+Disallow: /favorites
+Disallow: /chats
+Disallow: /moderation
+
+Sitemap: http://localhost:5173/sitemap.xml

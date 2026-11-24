@@ -3,11 +3,55 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f7f7f5" />
+    <meta name="theme-color" content="#f7f5f0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="author" content="BookSwap" />
+    <script src="/theme.js"></script>
+    <!--seo-head-start-->
     <title>BookSwap — книги находят своих людей</title>
+    <meta name="description" content="BookSwap — маркетплейс книг: купить, обменять или забрать бесплатно. Живой каталог с фильтрами, рейтингами книг и продавцов, встроенным чатом и безопасной модерацией." />
+    <link rel="canonical" href="http://localhost:5173/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="BookSwap" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:title" content="BookSwap — книги находят своих людей" />
+    <meta property="og:description" content="BookSwap — маркетплейс книг: купить, обменять или забрать бесплатно. Живой каталог с фильтрами, рейтингами книг и продавцов, встроенным чатом и безопасной модерацией." />
+    <meta property="og:url" content="http://localhost:5173/" />
+    <meta property="og:image" content="http://localhost:5173/og-cover.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="BookSwap — книги находят своих людей" />
+    <meta name="twitter:description" content="Купить, обменять или забрать книгу бесплатно. Каталог с рейтингами и встроенным чатом." />
+    <meta name="twitter:image" content="http://localhost:5173/og-cover.svg" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "BookSwap",
+        "url": "http://localhost:5173/",
+        "inLanguage": "ru-RU",
+        "description": "Маркетплейс книг: продажа, обмен и бесплатная передача книг между читателями.",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "http://localhost:5173/catalog?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+    <!--seo-head-end-->
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div style="max-width:640px;margin:80px auto;padding:0 24px;font-family:system-ui,sans-serif;line-height:1.6">
+        <h1>BookSwap</h1>
+        <p>Для работы каталога нужен JavaScript. Включите его, пожалуйста, и обновите страницу.</p>
+        <p><a href="/api">API BookSwap</a></p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

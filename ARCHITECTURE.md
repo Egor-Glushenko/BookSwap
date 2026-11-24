@@ -1,16 +1,149 @@
-# BookSwap MVP architecture
+# Архитектура BookSwap
 
-The repository is a workspace with two independently deployable applications:
+Два независимо разворачиваемых приложения в одном npm-workspace:
 
-- `frontend/` — React + Vite interface. Network access is isolated in `src/shared/api.js`.
-- `backend/` — Express API. Routes only translate HTTP; business logic belongs in `src/services`; PostgreSQL access is isolated in `src/repositories` and `src/db`.
+```
+frontend/   React 18 + Vite 6 (SPA, дизайн-система, SEO на клиенте)
+backend/    Express 4 + PostgreSQL (REST API, раздача SPA, SEO-рендеринг)
+```
 
-## Authentication
+## Бэкенд: слои и ответственность
 
-The current MVP supports only login/password sign-in. Regular users register and sign in with email/password. Admin and moderator sessions are created only from the special configured credential pairs; ordinary database credentials are refused for staff roles. Passwords are salted and hashed with Node.js `scrypt`; authenticated API calls use signed JWT bearer tokens. No confirmation or one-time codes are used.
+```
+HTTP-запрос
+   │
+   ├─ securityHeaders, CORS, JSON-парсер, request logger, rate limit
+   ├─ routes            — только HTTP: параметры, статусы, вызов сервиса
+   ├─ services          — бизнес-правила, права, валидация, маппинг ответов
+   ├─ repositories      — весь SQL, без бизнес-логики
+   └─ db/index.js       — единая точка доступа к БД (pg или PGlite)
+```
 
-Endpoints: `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/logout`.
+- **`config/env.js`** — единственное место чтения `process.env`; нормализует origins,
+  определяет режим БД и пути (uploads, data, frontend dist).
+- **`db/index.js`** — ленивый драйвер. С `DATABASE_URL` создаёт пул `pg` (TLS только если
+  он требуется), без него — `PGlite` в `.data/pglite`. Наружу отдаёт `query()`/`exec()`
+  с единым форматом результата (`rows`, `rowCount`).
+- **`db/migrate.js`** — таблица `schema_migrations`, применяет только новые файлы.
+  Все миграции идемпотентны (`IF NOT EXISTS`, `DROP CONSTRAINT IF EXISTS`), поэтому база,
+  созданная до появления учёта миграций, безопасно догоняется.
+- **`repositories/`** — только параметризованный SQL. Список колонок для `UPDATE`
+  жёстко ограничен белым списком (`EDITABLE_COLUMNS`), значения передаются как `$n`.
+- **`services/`** — валидация входных данных (`lib/validate.js`), проверка прав
+  (владелец/модератор), сборка доменных ответов, побочные эффекты (пересчёт рейтинга
+  продавца, засчитывание сделки, инвалидация sitemap).
+- **`lib/errors.js`** — `ApiError` со статусом и `asyncHandler`; всё, что не поймано,
+  уходит в единый обработчик ошибок, который прячет внутренние сообщения в production.
 
-## Data evolution
+### Аутентификация и роли
 
-Users, listings, ratings, favorites, chats, moderation records, categories, and reviews are stored in PostgreSQL through repository modules; the database schema is versioned in `backend/migrations`.
+- Пароли: `scrypt` с солью на пользователя (`lib/password.js`), сравнение — `timingSafeEqual`.
+- Сессия: JWT (`sub`, `role`) в заголовке `Authorization: Bearer`.
+- `requireAuth` перечитывает пользователя из базы на каждом запросе, поэтому блокировка
+  действует немедленно; `requireRole` пускает администратора всегда.
+- Сервисные аккаунты (админ, модератор) создаются/обновляются только при совпадении
+  логина и пароля из окружения; обычные пользователи не могут получить роль через вход.
+- Эндпоинты `/auth/login` и `/auth/register` ограничены rate limit'ом в памяти процесса.
+
+### Данные
+
+| Таблица | Назначение | Ключевые связи |
+| --- | --- | --- |
+| `users` | аккаунты, профиль, рейтинг продавца, сделки, блокировка | — |
+| `listings` | объявления, статусы `active/moderation/archived/sold`, фото, просмотры | `seller_id → users.id` |
+| `book_ratings` | оценки и рецензии книги (1–5, уникально на пользователя) | `user_id`, `listing_id` |
+| `favorites` | избранное | `user_id`, `listing_id` |
+| `chats`, `messages` | диалоги по объявлению и переписка | `listing_id`, `buyer_id`, `seller_id` |
+| `reports` | жалобы и их статусы | `reporter_id`, `listing_id` |
+| `seller_reviews` | отзывы о сделках, из них считается `users.rating` | `author_id`, `seller_id` |
+| `categories` | жанры каталога и фильтры | — |
+| `schema_migrations` | учёт применённых миграций | — |
+
+Агрегаты (средняя оценка книги, количество оценок, рейтинг продавца, непрочитанные)
+считаются SQL-агрегатами на чтение; рейтинг продавца дополнительно материализуется в
+`users.rating` при создании отзыва, чтобы не пересчитывать его в списках.
+
+### Файлы
+
+`POST /api/uploads/image` принимает один файл (multipart), проверяет MIME (JPEG/PNG/WebP)
+и размер, сохраняет под UUID-именем в `backend/uploads` и возвращает относительный
+`/uploads/...`. Статика раздаётся с `Cache-Control: immutable`. В БД хранятся только пути,
+поэтому переезд на S3 требует изменения одной функции.
+
+### SEO
+
+- `GET /sitemap.xml` — динамический список: статические страницы, активные/переданные
+  объявления, продавцы. Кэш на 10 минут по origin, инвалидация при изменении объявлений.
+- `GET /robots.txt` — запрет `/api`, личного кабинета, избранного, чатов и модерации.
+- SPA-фолбэк читает собранный `index.html` и подменяет блок `<!--seo-head-start-->…<!--seo-head-end-->`
+  на посчитанные теги: `title`, description, canonical, robots, Open Graph, Twitter и JSON-LD
+  (`Book` + `Offer`, `Person`, `BreadcrumbList`, `WebSite` + `SearchAction`, `FAQPage`, `HowTo`).
+- Неизвестные маршруты и отсутствующие объявления отвечают **404** и `noindex`, чтобы не
+  плодить «мягкие 404» в индексе.
+- На клиенте компонент `<Seo />` держит те же теги в актуальном состоянии при переходах.
+
+## Фронтенд
+
+### Маршруты
+
+```
+/                      главная (hero, свежие книги, шаги, рейтинг, FAQ, CTA)
+/catalog               каталог: поиск и фильтры синхронизированы с URL
+/listing/:id           карточка книги, оценки, похожие, действия
+/listing/:id/edit      редактирование (владелец)
+/seller/:id            профиль продавца
+/sell                  публикация (требует входа)
+/login, /register      аутентификация
+/profile               кабинет: объявления и настройки
+/favorites             избранное
+/chats                 диалоги (?chat=id)
+/moderation            панель модерации (moderator/admin)
+/how-it-works          SEO-страница с FAQ
+*                      404
+```
+
+### Провайдеры и данные
+
+```
+BrowserRouter
+└─ ToastProvider        всплывающие уведомления
+   └─ AuthProvider      сессия в localStorage, ревалидация токена
+      └─ FavoritesProvider  ids избранного для сердечек
+         └─ UnreadProvider   счётчик непрочитанных (опрос 30 с)
+            └─ App / Routes
+```
+
+- `shared/api.js` — единственное место сетевых вызовов: общий `request()` с токеном,
+  обработкой ошибок (`ApiError`), `mediaUrl()` для абсолютных путей к `/uploads`, и
+  событие `bookswap:unauthorized`, по которому контекст сбрасывает сессию.
+- `shared/hooks.js` — `useFetch` (abort + сохранение предыдущих данных + reload),
+  дебаунс поиска, интервал, клик-вне, блокировка скролла, горячая клавиша `⌘K`/`/`.
+- Ошибки рендера перехватывает `ErrorBoundary` с предложением обновить страницу.
+
+### Дизайн-система
+
+- `styles/tokens.css` — цвета, тени, радиусы, типографика и обе темы (`data-theme`);
+  тёмная тема также включается через `prefers-color-scheme`, если пользователь не выбрал вручную.
+- `styles/base.css`, `layout.css`, `components.css`, `pages.css`, `forms.css` — слои
+  от сброса и каркаса до компонентов и страничных сеток.
+- Скругления, «бумажная» палитра, серифные акценты в заголовках, плоские градиентные обложки:
+  обложка книги генерируется типографикой, если продавец не загрузил фото.
+- Скелетоны, пустые состояния, тосты, focus-trap модальных окон, `aria`-атрибуты,
+  `:focus-visible`, `prefers-reduced-motion`, адаптив от 320 px (проверено на 320/390/768/1024/1440).
+
+## Тесты
+
+`backend/src/tests/*.test.js` — интеграционные тесты на `node:test`, без внешних сервисов:
+каждый файл поднимает приложение на in-memory PGlite, применяет миграции, сеет демо-данные и
+ходит по HTTP через `fetch`. Проверяются happy path и отказы (401/403/404/409/400), права
+ролей, пагинация и фильтры, жизненный цикл объявления, чат, жалобы и отзывы.
+
+## Осознанные компромиссы
+
+| Решение | Причина |
+| --- | --- |
+| PGlite как fallback | запуск «из коробки» без PostgreSQL и честные интеграционные тесты без Docker |
+| Опрос чата вместо WebSocket | меньше подвижных частей, достаточно для MVP; интерфейс не меняется при переходе на WS |
+| In-memory rate limit и кэш sitemap | один инстанс API; при масштабировании — Redis |
+| Локальный диск для фото | нет внешних зависимостей; интерфейс репозитория готов к S3 |
+| Обложки генерируются CSS | каталог выглядит цельно даже без фотографий |

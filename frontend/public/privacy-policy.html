@@ -4,30 +4,113 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Политика конфиденциальности — BookSwap</title>
+    <meta name="description" content="Как BookSwap собирает, использует и защищает персональные данные читателей." />
+    <meta name="theme-color" content="#f7f5f0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <style>
-      :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171719;background:#f7f7f5;line-height:1.65}body{max-width:780px;margin:0 auto;padding:48px 24px}a{color:#3153a2}header{display:flex;align-items:center;gap:10px;margin-bottom:54px;font-weight:700;letter-spacing:-.04em}.mark{display:grid;place-items:center;width:30px;height:30px;border-radius:10px;background:#171719;color:#fff;font-size:13px}h1{font-size:42px;line-height:1.05;letter-spacing:-.07em}h2{margin-top:34px;font-size:21px;letter-spacing:-.04em}p,li{color:#666870;font-size:15px}time{color:#9899a0;font-size:13px}
+      :root {
+        color-scheme: light dark;
+        --paper: #f7f5f0;
+        --surface: #ffffff;
+        --ink: #17171a;
+        --ink-2: #44444b;
+        --muted: #74727b;
+        --line: #e6e1d5;
+        --accent: #3454a8;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.7;
+        background: var(--paper);
+        color: var(--ink);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --paper: #121215;
+          --surface: #1b1b21;
+          --ink: #f3f1ea;
+          --ink-2: #d2d0c9;
+          --muted: #a3a1a9;
+          --line: #2c2c35;
+          --accent: #8fa8ea;
+        }
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--paper); }
+      .top {
+        display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        max-width: 860px; margin: 0 auto; padding: 22px 24px;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.04em; color: var(--ink); text-decoration: none; }
+      .brand-mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: #17171a; color: #f7f5f0; }
+      .top a.back { color: var(--muted); font-size: 13px; text-decoration: none; }
+      .top a.back:hover { color: var(--ink); }
+      main { max-width: 860px; margin: 0 auto; padding: 40px 24px 72px; }
+      time { color: var(--muted); font-size: 13px; }
+      h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.05; letter-spacing: -0.05em; margin: 14px 0 20px; }
+      h2 { margin: 36px 0 10px; font-size: 21px; letter-spacing: -0.03em; }
+      p, li { color: var(--ink-2); font-size: 15px; }
+      li + li { margin-top: 6px; }
+      ul { padding-left: 20px; }
+      a { color: var(--accent); }
+      .note { padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--muted); font-size: 13.5px; margin-top: 32px; }
+      footer { max-width: 860px; margin: 0 auto; padding: 20px 24px 48px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; display: flex; gap: 14px; flex-wrap: wrap; justify-content: space-between; }
+      footer a { color: var(--muted); text-decoration: none; }
+      footer a:hover { color: var(--ink); }
     </style>
   </head>
   <body>
-    <header><span class="mark">B</span>BookSwap</header>
+    <header class="top">
+      <a class="brand" href="/"><span class="brand-mark">B</span>BookSwap</a>
+      <a class="back" href="/">← На главную</a>
+    </header>
     <main>
-      <time>Последнее обновление: 7 сентября 2026 года</time>
+      <time>Последнее обновление: 1 декабря 2026 года</time>
       <h1>Политика конфиденциальности</h1>
-      <p>Настоящая политика объясняет, какие данные BookSwap собирает, зачем они нужны и как мы их защищаем. Используя сервис, пользователь подтверждает, что ознакомился с документом.</p>
+      <p>Настоящая политика объясняет, какие данные BookSwap собирает, зачем они нужны и как защищаются. Регистрируясь и используя сервис, пользователь подтверждает, что ознакомился с документом.</p>
+
       <h2>1. Какие данные мы получаем</h2>
-      <p>При регистрации мы получаем email, имя или никнейм, город и пароль в защищённом виде. При использовании сервиса могут сохраняться объявления, сообщения, оценки, избранное, отзывы и технические данные: cookie, IP-адрес и сведения о браузере.</p>
+      <ul>
+        <li>при регистрации — email, пароль (хранится только в виде соли и хеша scrypt), имя и город;</li>
+        <li>в профиле по желанию — описание «о себе» и фотография;</li>
+        <li>при использовании сервиса — объявления, загруженные фотографии книг, сообщения в чате, оценки книг, отзывы о продавцах, избранное и жалобы;</li>
+        <li>технические сведения — IP-адрес, тип браузера и время запросов, необходимые для работы и защиты сервиса.</li>
+      </ul>
+
       <h2>2. Для чего используются данные</h2>
-      <ul><li>создание и обслуживание учётной записи;</li><li>публикация объявлений, работа чатов, рейтингов и избранного;</li><li>показ релевантных объявлений по городу и поисковым параметрам;</li><li>защита от спама, мошенничества и нарушений правил;</li><li>отправка сервисных уведомлений, если пользователь включил их.</li></ul>
-      <h2>3. Cookie</h2>
-      <p>Мы используем необходимые cookie для сохранения согласия, сессии и настроек интерфейса. Аналитические или рекламные cookie могут быть добавлены только с отдельного согласия пользователя. Настройки cookie можно изменить в браузере.</p>
-      <h2>4. Передача данных</h2>
-      <p>Мы не продаём персональные данные. Данные могут передаваться подрядчикам, которые обеспечивают хостинг, доставку писем и безопасность, только в объёме, необходимом для работы сервиса, а также по законному требованию государственных органов.</p>
-      <h2>5. Хранение и безопасность</h2>
-      <p>Пароли хранятся в виде криптографических хэшей. Доступ к данным ограничен ролями. Мы принимаем разумные организационные и технические меры безопасности, но не можем гарантировать абсолютную защиту данных в сети.</p>
-      <h2>6. Права пользователя</h2>
-      <p>Пользователь может запросить доступ, исправление или удаление своих данных, а также отозвать согласие, написав на support@bookswap.local. Удаление аккаунта может повлиять на доступ к истории сделок и опубликованным отзывам.</p>
-      <h2>7. Контакты</h2>
-      <p>По вопросам конфиденциальности: support@bookswap.local.</p>
+      <ul>
+        <li>создание и обслуживание учётной записи, вход по токену;</li>
+        <li>публикация объявлений, работа каталога, чатов, рейтингов и избранного;</li>
+        <li>показ объявлений по городу, жанру и поисковым параметрам;</li>
+        <li>защита от спама, мошенничества и нарушений правил, включая обработку жалоб;</li>
+        <li>ответы на обращения в поддержку.</li>
+      </ul>
+
+      <h2>3. Правовые основания</h2>
+      <p>Данные обрабатываются для исполнения пользовательского соглашения (работа аккаунта и объявлений), на основании согласия (необязательные поля профиля и cookie, кроме необходимых) и законного интереса (безопасность и предотвращение злоупотреблений).</p>
+
+      <h2>4. Cookie и локальное хранилище</h2>
+      <p>Сервис использует только необходимые механизмы: токен сессии, выбранную тему оформления и отметку о согласии с cookie — они хранятся в localStorage браузера. Аналитические или рекламные cookie не устанавливаются без отдельного согласия. Очистить сохранённые данные можно в настройках браузера.</p>
+
+      <h2>5. Передача данных</h2>
+      <p>Мы не продаём персональные данные. Данные могут обрабатываться подрядчиками, обеспечивающими хостинг, базу данных и доставку писем, только в объёме, необходимом для работы сервиса, а также по законному требованию уполномоченных органов.</p>
+
+      <h2>6. Хранение и безопасность</h2>
+      <p>Пароли хранятся в виде соли и криптографического хеша. Доступ к данным ограничен ролями пользователя, модератора и администратора. Соединение с сервером защищено TLS в production. Мы принимаем разумные организационные и технические меры, но не можем гарантировать абсолютную защиту данных в сети.</p>
+
+      <h2>7. Права пользователя</h2>
+      <p>Пользователь может запросить доступ к своим данным, их исправление или удаление, а также отозвать согласие, написав на <a href="mailto:support@bookswap.local">support@bookswap.local</a>. Удаление аккаунта влечёт удаление объявлений и профиля; сообщения и отзывы могут сохраняться в обезличенном виде для истории сделок.</p>
+
+      <h2>8. Дети</h2>
+      <p>Сервис не предназначен для самостоятельного использования детьми младше 14 лет. Книги для детей размещают взрослые пользователи.</p>
+
+      <h2>9. Изменения политики</h2>
+      <p>Актуальная версия всегда доступна по этому адресу. О существенных изменениях мы сообщим в интерфейсе сервиса.</p>
+
+      <p class="note">По вопросам конфиденциальности: <a href="mailto:support@bookswap.local">support@bookswap.local</a>. По вопросам работы сервиса: <a href="/how-it-works">раздел «Как это работает»</a>.</p>
     </main>
+    <footer>
+      <span>© 2026 BookSwap. Книги обретают новую жизнь.</span>
+      <span><a href="/terms-of-use.html">Условия пользования</a> · <a href="/">Главная</a></span>
+    </footer>
   </body>
 </html>

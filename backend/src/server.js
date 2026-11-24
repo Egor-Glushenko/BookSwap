@@ -1,30 +1,46 @@
-import cors from 'cors';
-import express from 'express';
+import { createApp } from './app.js';
+import { bootstrapDatabase } from './bootstrap.js';
 import { config } from './config/env.js';
-import authRoutes from './routes/auth.routes.js';
-import listingsRoutes from './routes/listings.routes.js';
-import favoritesRoutes from './routes/favorites.routes.js';
-import booksRoutes from './routes/books.routes.js';
-import chatsRoutes from './routes/chats.routes.js';
-import moderationRoutes from './routes/moderation.routes.js';
+import { databaseKind, closeDatabase } from './db/index.js';
+import { logger } from './lib/logger.js';
 
-const app = express();
+const { migrations, database } = await bootstrapDatabase();
+const app = await createApp();
 
-app.use(cors({
-  origin(origin, callback) {
-    if (!origin || config.allowedOrigins.includes(origin.replace(/\/$/, ''))) return callback(null, true);
-    return callback(new Error('Origin is not allowed by CORS'));
+const server = app.listen(config.port, () => {
+  logger.info('BookSwap API started', {
+    port: config.port,
+    env: config.nodeEnv,
+    database,
+    demoMode: config.demoMode,
+    migrations: migrations.length,
+    docs: `http://localhost:${config.port}/api`
+  });
+  if (config.demoMode) {
+    logger.info('demo mode: embedded PGlite database, demo accounts use password demo12345', {
+      accounts: ['anna@bookswap.local', 'ivan@bookswap.local']
+    });
   }
-}));
-app.use(express.json());
+});
 
-app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'bookswap-api' }));
+server.on('error', (error) => {
+  logger.error('server error', { error: error.message });
+  process.exitCode = 1;
+});
 
-app.use('/api/auth', authRoutes);
-app.use('/api/listings', listingsRoutes);
-app.use('/api/favorites', favoritesRoutes);
-app.use('/api/books', booksRoutes);
-app.use('/api/chats', chatsRoutes);
-app.use('/api/moderation', moderationRoutes);
+let shuttingDown = false;
+async function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  logger.info('shutting down', { signal });
+  server.close(async () => {
+    await closeDatabase();
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(1), 10_000).unref();
+}
 
-app.listen(config.port, () => console.log(`BookSwap API listening on http://localhost:${config.port}`));
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+
+export { app, server, databaseKind };

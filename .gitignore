@@ -1,5 +1,22 @@
 node_modules/
 dist/
+.data/
+.npm-cache/
+.shots/
+coverage/
+
+# Local secrets
 .env
 .env.*
 !.env.example
+
+# Runtime artefacts
+backend/uploads/*
+!backend/uploads/.gitkeep
+*.log
+npm-debug.log*
+
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

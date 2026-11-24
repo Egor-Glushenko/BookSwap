@@ -4,32 +4,122 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Условия пользования — BookSwap</title>
+    <meta name="description" content="Правила использования сервиса BookSwap: объявления, сделки, модерация и ответственность." />
+    <meta name="theme-color" content="#f7f5f0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <style>
-      :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171719;background:#f7f7f5;line-height:1.65}body{max-width:780px;margin:0 auto;padding:48px 24px}a{color:#3153a2}header{display:flex;align-items:center;gap:10px;margin-bottom:54px;font-weight:700;letter-spacing:-.04em}.mark{display:grid;place-items:center;width:30px;height:30px;border-radius:10px;background:#171719;color:#fff;font-size:13px}h1{font-size:42px;line-height:1.05;letter-spacing:-.07em}h2{margin-top:34px;font-size:21px;letter-spacing:-.04em}p,li{color:#666870;font-size:15px}time{color:#9899a0;font-size:13px}
+      :root {
+        color-scheme: light dark;
+        --paper: #f7f5f0;
+        --surface: #ffffff;
+        --ink: #17171a;
+        --ink-2: #44444b;
+        --muted: #74727b;
+        --line: #e6e1d5;
+        --accent: #3454a8;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.7;
+        background: var(--paper);
+        color: var(--ink);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --paper: #121215;
+          --surface: #1b1b21;
+          --ink: #f3f1ea;
+          --ink-2: #d2d0c9;
+          --muted: #a3a1a9;
+          --line: #2c2c35;
+          --accent: #8fa8ea;
+        }
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--paper); }
+      .top {
+        display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        max-width: 860px; margin: 0 auto; padding: 22px 24px;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.04em; color: var(--ink); text-decoration: none; }
+      .brand-mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: #17171a; color: #f7f5f0; }
+      .top a.back { color: var(--muted); font-size: 13px; text-decoration: none; }
+      .top a.back:hover { color: var(--ink); }
+      main { max-width: 860px; margin: 0 auto; padding: 40px 24px 72px; }
+      time { color: var(--muted); font-size: 13px; }
+      h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.05; letter-spacing: -0.05em; margin: 14px 0 20px; }
+      h2 { margin: 36px 0 10px; font-size: 21px; letter-spacing: -0.03em; }
+      p, li { color: var(--ink-2); font-size: 15px; }
+      li + li { margin-top: 6px; }
+      ul { padding-left: 20px; }
+      a { color: var(--accent); }
+      .note { padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--muted); font-size: 13.5px; margin-top: 32px; }
+      footer { max-width: 860px; margin: 0 auto; padding: 20px 24px 48px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; display: flex; gap: 14px; flex-wrap: wrap; justify-content: space-between; }
+      footer a { color: var(--muted); text-decoration: none; }
+      footer a:hover { color: var(--ink); }
     </style>
   </head>
   <body>
-    <header><span class="mark">B</span>BookSwap</header>
+    <header class="top">
+      <a class="brand" href="/"><span class="brand-mark">B</span>BookSwap</a>
+      <a class="back" href="/">← На главную</a>
+    </header>
     <main>
-      <time>Последнее обновление: 7 сентября 2026 года</time>
+      <time>Последнее обновление: 1 декабря 2026 года</time>
       <h1>Условия пользования</h1>
-      <p>Эти условия определяют правила использования BookSwap — платформы для продажи, обмена, бесплатной передачи и обсуждения книг.</p>
+      <p>BookSwap — сервис для передачи книг между читателями. Мы не продаём книги и не участвуем в расчётах: пользователи договариваются напрямую. Ниже — правила, которые делают такие сделки предсказуемыми.</p>
+
       <h2>1. Учётная запись</h2>
-      <p>Для доступа к функциям пользователя необходимо указать действующий email и пароль. Пользователь отвечает за сохранность данных входа и за достоверность информации в профиле.</p>
-      <h2>2. Объявления и сделки</h2>
-      <p>Пользователь должен честно описывать книгу, её состояние, цену или условия обмена. Запрещены дубликаты, вводящие в заблуждение фотографии, незаконные товары, спам и публикация чужих персональных данных.</p>
-      <h2>3. Общение</h2>
-      <p>Чат предназначен для обсуждения книг и сделок. Нельзя отправлять угрозы, оскорбления, вредоносные ссылки, массовую рекламу или материалы, нарушающие закон. Максимальная длина сообщения — 2000 символов.</p>
-      <h2>4. Рейтинги и отзывы</h2>
-      <p>Оценка книги относится к содержанию книги, а отзыв о продавце — к фактическому опыту сделки. Запрещены накрутка, фиктивные отзывы и давление на другого пользователя.</p>
-      <h2>5. Модерация</h2>
-      <p>BookSwap может скрыть объявление, ограничить чат или заблокировать аккаунт при нарушении правил. Пользователь может пожаловаться на объявление или профиль; решение принимается модератором.</p>
-      <h2>6. Ответственность</h2>
-      <p>BookSwap предоставляет площадку для связи пользователей и не является стороной сделки. Пользователи самостоятельно проверяют описание книги, условия передачи и безопасность личной встречи.</p>
-      <h2>7. Изменения условий</h2>
-      <p>Мы можем обновлять эти условия при изменении функций сервиса или требований закона. Продолжение использования платформы после публикации новой версии означает принятие изменений.</p>
-      <h2>8. Контакты</h2>
-      <p>По вопросам правил: support@bookswap.local.</p>
+      <ul>
+        <li>для размещения объявлений и чатов нужен аккаунт с действующим email;</li>
+        <li>пользователь отвечает за сохранность пароля и действия в своём аккаунте;</li>
+        <li>один человек может иметь один личный аккаунт; передавать его другим нельзя;</li>
+        <li>аккаунт может быть ограничен или заблокирован за нарушение правил.</li>
+      </ul>
+
+      <h2>2. Объявления</h2>
+      <ul>
+        <li>одно объявление — одна книга; указывайте реальное состояние, цену и способ передачи;</li>
+        <li>фотографии должны быть сделаны вами и показывать именно этот экземпляр;</li>
+        <li>запрещены дубликаты, недостоверные описания и объявления о книгах, которых у вас нет;</li>
+        <li>объявление можно редактировать, отмечать как переданное и снимать с публикации в личном кабинете.</li>
+      </ul>
+
+      <h2>3. Запрещённый контент</h2>
+      <p>Нельзя размещать пиратские копии и контрафактные издания, материалы, нарушающие закон, экстремистские и порнографические материалы, а также оскорбления, спам и персональные данные третьих лиц без их согласия.</p>
+
+      <h2>4. Сделки и расчёты</h2>
+      <ul>
+        <li>BookSwap не берёт комиссию и не проводит платежи;</li>
+        <li>оплата и передача книги происходят напрямую между пользователями;</li>
+        <li>сервис не гарантирует качество книги и не является стороной сделки;</li>
+        <li>рекомендуем встречаться в людных местах и проверять книгу до оплаты.</li>
+      </ul>
+
+      <h2>5. Отзывы и рейтинги</h2>
+      <p>Оценки книг и отзывы о продавцах должны отражать реальный опыт. Запрещены заказные отзывы, накрутка рейтинга и попытки повлиять на оценки других пользователей. Отзыв о сделке может оставить участник соответствующего диалога.</p>
+
+      <h2>6. Модерация</h2>
+      <ul>
+        <li>объявления публикуются сразу, но доступны проверке по жалобам;</li>
+        <li>модератор может снять объявление, запросить изменения и ограничить аккаунт;</li>
+        <li>решение модератора можно оспорить через <a href="mailto:support@bookswap.local">support@bookswap.local</a>;</li>
+        <li>администратор управляет ролями и доступом к панели модерации.</li>
+      </ul>
+
+      <h2>7. Ответственность</h2>
+      <p>Сервис предоставляется «как есть». Мы стремимся к бесперебойной работе, но не гарантируем отсутствие технических сбоев. Пользователь самостоятельно оценивает риски сделки и несёт ответственность за соблюдение законодательства при передаче книг.</p>
+
+      <h2>8. Интеллектуальная собственность</h2>
+      <p>Права на тексты, фотографии и оформление объявлений принадлежат пользователям. Размещая материалы, пользователь разрешает BookSwap показывать их в каталоге и поиске. Права на сам сервис, интерфейс и код принадлежат правообладателю BookSwap.</p>
+
+      <h2>9. Изменения условий</h2>
+      <p>Актуальная версия условий всегда доступна по этому адресу. Продолжая пользоваться сервисом после изменений, пользователь принимает новую редакцию.</p>
+
+      <p class="note">Обращения и жалобы: <a href="mailto:support@bookswap.local">support@bookswap.local</a>. Как работает сервис: <a href="/how-it-works">раздел «Как это работает»</a>.</p>
     </main>
+    <footer>
+      <span>© 2026 BookSwap. Книги обретают новую жизнь.</span>
+      <span><a href="/privacy-policy.html">Политика конфиденциальности</a> · <a href="/">Главная</a></span>
+    </footer>
   </body>
 </html>

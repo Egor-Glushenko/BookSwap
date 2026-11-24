@@ -1,119 +1,91 @@
 import { Router } from 'express';
 import { requireAuth, requireRole } from '../middleware/auth.middleware.js';
+import { asyncHandler } from '../lib/errors.js';
 import {
   createCategory,
   createSellerReview,
   deleteCategory,
   getCategories,
+  getModerationListings,
+  getPlatformStats,
   getReports,
   getSellerReviews,
   listUsers,
-  removeListing,
   reportListing,
   setReportStatus,
   setUserBlocked,
   setUserRole
 } from '../services/moderation.service.js';
+import { archiveListing } from '../services/listing.service.js';
 
 const router = Router();
 
-router.get('/categories', async (_req, res) => {
-  try {
-    res.json({ data: await getCategories() });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+// Public catalogue metadata and user-generated feedback.
+router.get('/categories', asyncHandler(async (_request, response) => {
+  response.json({ data: await getCategories() });
+}));
 
-router.post('/reports', requireAuth, async (req, res) => {
-  try {
-    res.status(201).json({ data: await reportListing(req.user.id, req.body) });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+router.get('/reviews/:sellerId', asyncHandler(async (request, response) => {
+  response.json(await getSellerReviews(request.params.sellerId));
+}));
 
-router.get('/reviews/:sellerId', async (req, res) => {
-  try {
-    res.json({ data: await getSellerReviews(req.params.sellerId) });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+router.post('/reports', requireAuth, asyncHandler(async (request, response) => {
+  response.status(201).json({ data: await reportListing(request.user.id, request.body || {}) });
+}));
 
-router.post('/reviews', requireAuth, async (req, res) => {
-  try {
-    res.status(201).json({ data: await createSellerReview(req.user.id, req.body) });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+router.post('/reviews', requireAuth, asyncHandler(async (request, response) => {
+  response.status(201).json({ data: await createSellerReview(request.user.id, request.body || {}) });
+}));
 
+// Everything below requires a moderator or administrator session.
 router.use(requireAuth, requireRole('moderator'));
 
-router.get('/reports', async (_req, res) => {
-  try {
-    res.json({ data: await getReports() });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+router.get('/stats', asyncHandler(async (_request, response) => {
+  response.json(await getPlatformStats());
+}));
 
-router.patch('/reports/:id', async (req, res) => {
-  try {
-    res.json({ data: await setReportStatus(req.params.id, req.body.status) });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+router.get('/listings', asyncHandler(async (request, response) => {
+  response.json(await getModerationListings(request.query.status));
+}));
 
-router.delete('/listings/:id', async (req, res) => {
-  try {
-    res.json({ data: await removeListing(req.params.id) });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+router.get('/reports', asyncHandler(async (request, response) => {
+  response.json({ data: await getReports(request.query.status) });
+}));
 
-router.patch('/users/:id/block', async (req, res) => {
-  try {
-    res.json({ data: await setUserBlocked(req.params.id, req.body.isBlocked) });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+router.patch('/reports/:id(\\d+)', asyncHandler(async (request, response) => {
+  response.json({ data: await setReportStatus(request.params.id, request.body?.status) });
+}));
 
-router.post('/categories', async (req, res) => {
-  try {
-    res.status(201).json({ data: await createCategory(req.body.name) });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+router.delete('/listings/:id(\\d+)', asyncHandler(async (request, response) => {
+  response.json({
+    data: await archiveListing({
+      listingId: request.params.id,
+      userId: request.user.id,
+      isStaffUser: true
+    })
+  });
+}));
 
-router.delete('/categories/:id', async (req, res) => {
-  try {
-    await deleteCategory(req.params.id);
-    res.status(204).end();
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+router.patch('/users/:id/block', asyncHandler(async (request, response) => {
+  response.json({ data: await setUserBlocked(request.params.id, request.body?.isBlocked) });
+}));
 
-router.get('/users', requireRole('admin'), async (_req, res) => {
-  try {
-    res.json({ data: await listUsers() });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+router.post('/categories', asyncHandler(async (request, response) => {
+  response.status(201).json({ data: await createCategory(request.body?.name) });
+}));
 
-router.patch('/users/:id/role', requireRole('admin'), async (req, res) => {
-  try {
-    res.json({ data: await setUserRole(req.params.id, req.body.role) });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+router.delete('/categories/:id(\\d+)', asyncHandler(async (request, response) => {
+  await deleteCategory(request.params.id);
+  response.status(204).end();
+}));
+
+// Administrator-only endpoints.
+router.get('/users', requireRole('admin'), asyncHandler(async (_request, response) => {
+  response.json({ data: await listUsers() });
+}));
+
+router.patch('/users/:id/role', requireRole('admin'), asyncHandler(async (request, response) => {
+  response.json({ data: await setUserRole(request.params.id, request.body?.role) });
+}));
 
 export default router;

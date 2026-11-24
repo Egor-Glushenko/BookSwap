@@ -1,43 +1,31 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware.js';
-import { createChat, getChats, getMessages, sendMessage } from '../services/chat.service.js';
+import { asyncHandler } from '../lib/errors.js';
+import { createChat, getChats, getMessages, getUnreadCount, sendMessage } from '../services/chat.service.js';
 
 const router = Router();
 
-router.get('/', requireAuth, async (req, res) => {
-  try {
-    const data = await getChats(req.user.id);
-    res.json({ data });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+router.use(requireAuth);
 
-router.post('/', requireAuth, async (req, res) => {
-  try {
-    const data = await createChat(req.user.id, req.body);
-    res.status(201).json({ data });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+router.get('/', asyncHandler(async (request, response) => {
+  response.json({ data: await getChats(request.user.id) });
+}));
 
-router.get('/:id/messages', requireAuth, async (req, res) => {
-  try {
-    const data = await getMessages(req.user.id, req.params.id);
-    res.json({ data });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+router.get('/unread-count', asyncHandler(async (request, response) => {
+  response.json({ count: await getUnreadCount(request.user.id) });
+}));
 
-router.post('/:id/messages', requireAuth, async (req, res) => {
-  try {
-    const data = await sendMessage(req.user.id, req.params.id, req.body.text);
-    res.status(201).json({ data });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+router.post('/', asyncHandler(async (request, response) => {
+  response.status(201).json({ data: await createChat(request.user.id, request.body || {}) });
+}));
+
+router.get('/:id(\\d+)/messages', asyncHandler(async (request, response) => {
+  const data = await getMessages(request.user.id, request.params.id, { afterId: request.query.after });
+  response.json({ data });
+}));
+
+router.post('/:id(\\d+)/messages', asyncHandler(async (request, response) => {
+  response.status(201).json({ data: await sendMessage(request.user.id, request.params.id, request.body?.text) });
+}));
 
 export default router;
